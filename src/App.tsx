@@ -1,20 +1,20 @@
 import "./App.css";
-import Home from "./pages/Home";
 import Header from "./components/Header";
+import Game from "./pages/Game";
 
 function App() {
   return (
     <>
       <header></header>
-      <main className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr_1fr] min-h-screen md:divide-x divide-y md:divide-y-0">
-        <section className="p-4"></section>
-        <section className="p-4">
-          <Header />
-          <div className="flex flex-row">
-            <Home />
+      <main className="grid grid-cols-1 md:grid-cols-[1fr_minmax(480px,1.5fr)_1fr] min-h-screen md:divide-x divide-y md:divide-y-0">
+        <section className="text-center">AD</section>
+        <section>
+          <div>
+            <Header />
+            <Game />
           </div>
         </section>
-        <section className="p-4"></section>
+        <section className="text-center">AD</section>
       </main>
       <footer></footer>
     </>
