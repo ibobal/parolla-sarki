@@ -5,18 +5,14 @@ import Game from "./pages/Game";
 function App() {
   return (
     <>
-      <header></header>
-      <main className="grid grid-cols-1 md:grid-cols-[1fr_minmax(480px,1.5fr)_1fr] min-h-screen md:divide-x divide-y md:divide-y-0">
-        <section className="text-center">AD</section>
-        <section>
-          <div>
-            <Header />
-            <Game />
-          </div>
+      <main className="grid grid-cols-1 md:grid-cols-[1fr_minmax(480px,1.5fr)_1fr] min-h-screen md:divide-x divide-gray-200">
+        <section className="hidden md:flex items-center justify-center bg-gray-200 text-gray-500">AD</section>
+        <section className="flex flex-col min-h-screen bg-white">
+          <Header />
+          <Game />
         </section>
-        <section className="text-center">AD</section>
+        <section className="hidden md:flex items-center justify-center bg-gray-200 text-gray-500">AD</section>
       </main>
-      <footer></footer>
     </>
   );
 }
