@@ -60,7 +60,7 @@ export default function LetterCarousel() {
                       transition-all duration-300 cursor-default border-2
                       ${
                         isActive
-                          ? "scale-125 shadow-md shadow-red-500 border-black"
+                          ? "scale-125 shadow-[0_3px_0_1px_rgba(239,68,68,0.8)] border-black"
                           : "border-gray-200"
                       }
                     `}
