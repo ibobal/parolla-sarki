@@ -5,39 +5,30 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import { useEffect, useState } from "react";
-
-const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+import { useGameStore, ALPHABET } from "@/store/game";
 
 export default function LetterCarousel() {
   const [api, setApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
+  const passQuestion = useGameStore((state) => state.passQuestion);
+  const currentLetterIndex = useGameStore((state) => state.currentLetterIndex);
 
   useEffect(() => {
-    if (!api) return;
-
-    setCurrent(api.selectedScrollSnap());
-
-    api.on("select", () => {
-      setCurrent(api.selectedScrollSnap());
-    });
-  }, [api]);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!api) return;
-      if (e.key === "ArrowRight") {
-        api.scrollNext();
-      } else if (e.key === "ArrowLeft") {
-        api.scrollPrev();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Tab") {
+        event.preventDefault();
+        passQuestion();
       }
     };
 
-    addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [passQuestion]);
 
-    return () => {
-      removeEventListener("keydown", handleKeyDown);
-    };
-  }, [api]);
+  useEffect(() => {
+    if (!api) return;
+    api.scrollTo(currentLetterIndex);
+    console.log("Scrolling to letter index:", currentLetterIndex);
+  }, [api, currentLetterIndex]);
 
   return (
     <Carousel
@@ -51,28 +42,23 @@ export default function LetterCarousel() {
     >
       <CarouselContent>
         {ALPHABET.map((letter, index) => {
-          const isActive = index === current;
+          const isActive = index === currentLetterIndex;
           return (
-            <CarouselItem className="p-6 basis-1/5 md:basis-1/6" key={letter}>
+            <CarouselItem className="p-6 basis-1/5 md:basis-1/7" key={letter}>
               <div
                 className={`
                       w-20 h-20 rounded-full flex items-center justify-center
                       transition-all duration-300 cursor-default border-2
                       ${
                         isActive
-                          ? "scale-125 shadow-[0_3px_0_1px_rgba(239,68,68,0.8)] border-black"
+                          ? "scale-110 shadow-[0_1.75px_0_1px_rgba(239,68,68,0.8)] border-black"
                           : "border-gray-200"
                       }
                     `}
               >
                 <span
                   className={`
-                        transition-all duration-300
-                        ${
-                          isActive
-                            ? "text-3xl font-bold"
-                            : "text-xl text-gray-600"
-                        }
+                        ${isActive ? "font-bold" : "text-gray-600"}
                       `}
                 >
                   {letter}
