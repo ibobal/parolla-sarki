@@ -7,88 +7,68 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  type CarouselApi,
-} from "./ui/carousel";
-import { useEffect, useState } from "react";
-
-const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+import { useGameStore } from "@/store/game";
+import { Button } from "./ui/button";
+import { Play, Pause } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
 
 export default function SongCard() {
-  const [api, setApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
+  const currentLetterIndex = useGameStore((state) => state.currentLetterIndex);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const songs = useGameStore((state) => state.songs);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
-    if (!api) return;
+    if (audioRef.current) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+      audioRef.current.load();
+    }
+  }, [currentLetterIndex]);
 
-    setCurrent(api.selectedScrollSnap());
+  const togglePlay = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
 
-    api.on("select", () => {
-      setCurrent(api.selectedScrollSnap());
-    });
-  }, [api]);
+    if (isPlaying) {
+      audio.pause();
+    } else {
+      audio.play();
+    }
+  };
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!api) return;
-      if (e.key === "ArrowRight") {
-        api.scrollNext();
-      } else if (e.key === "ArrowLeft") {
-        api.scrollPrev();
-      }
-    };
-
-    addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      removeEventListener("keydown", handleKeyDown);
-    };
-  }, [api]);
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Card Title</CardTitle>
-        <CardDescription>Card Description</CardDescription>
-        <CardAction>00:00</CardAction>
+        <CardTitle>{songs[currentLetterIndex]?.track_name}</CardTitle>
+        <CardDescription>
+          {songs[currentLetterIndex]?.artist_name}
+        </CardDescription>
+        <CardAction>{audioRef.current?.paused ? "Play" : "Pause"}</CardAction>
       </CardHeader>
-      <Carousel
-        opts={{
-          watchDrag: false,
-          align: "center",
-          loop: false,
-          containScroll: false,
-          duration: 21,
-        }}
-        setApi={setApi}
-        className="w-sm mx-auto"
-      >
-        <CarouselContent>
-          {ALPHABET.map((letter, index) => {
-            const isActive = index === current;
-            return (
-              <CarouselItem key={letter}>
-                <CardContent className="flex flex-col items-center">
-                  <img
-                    src="src/assets/background.png"
-                    alt="Song Artwork"
-                    className="rounded h-64 w-64"
-                  />
-                  <div className="mt-4">
-                    <h2 className="text-lg font-semibold">Song Name {letter}</h2>
-                    <CardDescription>Artist Name</CardDescription>
-                  </div>
-                </CardContent>
-              </CarouselItem>
-            );
-          })}
-        </CarouselContent>
-      </Carousel>
-      <CardFooter>
-        <p>Card Footer</p>
+      <CardContent className="flex justify-center items-center">
+        <img
+          src={songs[currentLetterIndex]?.artwork_url.replace(
+            /\/\d+x\d+bb\.jpg$/,
+            "/300x300bb.jpg"
+          )}
+          alt="Album Art"
+        />
+      </CardContent>
+      <CardFooter className="flex justify-center items-center">
+        <Button onClick={togglePlay}>
+          {audioRef.current?.paused ? "Play" : "Pause"}
+          {audioRef.current?.paused ? <Play /> : <Pause />}
+        </Button>
       </CardFooter>
+      <audio
+        hidden
+        ref={audioRef}
+        src={songs[currentLetterIndex]?.preview_url}
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        onEnded={() => setIsPlaying(false)}
+      />
     </Card>
   );
 }
