@@ -1,5 +1,6 @@
+// src/lib/songLoader.ts
 import songsData from "@/assets/songs.json";
-import { ALPHABET } from "@/store/game";
+import { ALPHABET } from "@/constants/alphabet";
 
 export interface Song {
   id: number;
@@ -13,32 +14,38 @@ export interface Song {
   created_at: string;
 }
 
-export const groupSongsByAlphabet = (): Map<string, Song[]> => {
-  const songsByLetter = new Map<string, Song[]>();
+const songsByLetter: Map<string, Song[]> = (() => {
+  const map = new Map<string, Song[]>();
 
-  for (const song of songsData.songs) {
-    const letter = song.letter;
-    if (!songsByLetter.has(letter)) {
-      songsByLetter.set(letter, []);
-    }
-    songsByLetter.get(letter)!.push(song);
+  for (const rawSong of songsData.songs as Song[]) {
+    const letter = rawSong.letter;
+
+    const song: Song = {
+      ...rawSong,
+      letter,
+    };
+
+    const arr = map.get(letter);
+    if (arr) arr.push(song);
+    else map.set(letter, [song]);
   }
 
-  return songsByLetter;
-};
+  return map;
+})();
 
-const getRandomElement = <T>(array: T[]): T => {
-  return array[Math.floor(Math.random() * array.length)];
-};
+const getRandomElement = <T>(array: T[]): T =>
+  array[Math.floor(Math.random() * array.length)];
 
-
+/**
+ * Her harf için (varsa) 1 tane rastgele şarkı döndürür.
+ * Bazı harflerde şarkı yoksa o harf atlanır.
+ */
 export const getSongsForGame = (): Song[] => {
-  const songsByLetter = groupSongsByAlphabet();
   const songs: Song[] = [];
 
   for (const letter of ALPHABET) {
     const letterSongs = songsByLetter.get(letter);
-    if (letterSongs && letterSongs.length > 0) {
+    if (letterSongs?.length) {
       songs.push(getRandomElement(letterSongs));
     }
   }
@@ -46,11 +53,23 @@ export const getSongsForGame = (): Song[] => {
   return songs;
 };
 
+/**
+ * Verilen harf için rastgele bir şarkı döndürür.
+ */
 export const getSongByLetter = (letter: string): Song | undefined => {
-  const songsByLetter = groupSongsByAlphabet();
-  const letterSongs = songsByLetter.get(letter);
-  if (letterSongs && letterSongs.length > 0) {
-    return getRandomElement(letterSongs);
+  const key = letter;
+  const letterSongs = songsByLetter.get(key);
+  return letterSongs?.length ? getRandomElement(letterSongs) : undefined;
+};
+
+/**
+ * (Opsiyonel) Gerekirse debug/istatistik için:
+ * Her harf kaç şarkı var bilgisini döndürür.
+ */
+export const getSongCountsByLetter = (): Record<string, number> => {
+  const counts: Record<string, number> = {};
+  for (const letter of ALPHABET) {
+    counts[letter] = songsByLetter.get(letter)?.length ?? 0;
   }
-  return undefined;
+  return counts;
 };
