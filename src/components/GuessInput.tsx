@@ -1,14 +1,36 @@
 import { Send } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useGameStore } from "@/store/game";
 
 export default function GuessInput() {
   const [guess, setGuess] = useState("");
+  const checkAnswer = useGameStore((state) => state.submitAnswer);
+  const passTurn = useGameStore((state) => state.passTurn)
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Tab") {
+        event.preventDefault();
+        passTurn();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [passTurn]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setGuess(event.target.value);
   };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    checkAnswer(guess);
+    setGuess("");
+  };
+
   return (
-    <div className="relative flex items-center">
+    <form className="relative flex items-center" onSubmit={handleSubmit}>
       <input
         type="text"
         placeholder="Cevabı yaz"
@@ -20,6 +42,6 @@ export default function GuessInput() {
         <Send className="w-4 h-4" />
         <span>GÖNDER</span>
       </button>
-    </div>
+    </form>
   );
 }
