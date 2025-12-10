@@ -5,11 +5,11 @@ import LetterCarousel from "@/components/LetterCarousel";
 import SongCard from "@/components/SongCard";
 
 export default function Game() {
-  const loadSongs = useGameStore((state) => state.loadSongs);
-
+  const startGame = useGameStore((state) => state.startGame);
+  
   useEffect(() => {
-    loadSongs();
-  }, [loadSongs]);
+    startGame();
+  }, [startGame]);
 
   return (
     <div className="flex flex-col justify-between flex-1 p-4">
