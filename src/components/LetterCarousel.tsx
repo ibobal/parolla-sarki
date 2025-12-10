@@ -5,30 +5,17 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import { useEffect, useState } from "react";
-import { useGameStore, ALPHABET } from "@/store/game";
+import { useGameStore } from "@/store/game";
 
 export default function LetterCarousel() {
   const [api, setApi] = useState<CarouselApi>();
-  const passQuestion = useGameStore((state) => state.passQuestion);
-  const currentLetterIndex = useGameStore((state) => state.currentLetterIndex);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Tab") {
-        event.preventDefault();
-        passQuestion();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [passQuestion]);
+  const currentIndex = useGameStore((state) => state.queue[0]);
+  const results = useGameStore((state) => state.results);
 
   useEffect(() => {
     if (!api) return;
-    api.scrollTo(currentLetterIndex);
-    console.log("Scrolling to letter index:", currentLetterIndex);
-  }, [api, currentLetterIndex]);
+    api.scrollTo(currentIndex);
+  }, [api, currentIndex]);
 
   return (
     <Carousel
@@ -41,8 +28,8 @@ export default function LetterCarousel() {
       setApi={setApi}
     >
       <CarouselContent>
-        {ALPHABET.map((letter, index) => {
-          const isActive = index === currentLetterIndex;
+        {Object.entries(results).map(([letter, status], index) => {
+          const isActive = index === currentIndex;
           return (
             <CarouselItem className="p-6 basis-1/5 md:basis-1/7" key={letter}>
               <div
@@ -53,6 +40,15 @@ export default function LetterCarousel() {
                         isActive
                           ? "scale-110 shadow-[0_1.75px_0_1px_rgba(239,68,68,0.8)] border-black"
                           : "border-gray-200"
+                      }
+                      ${
+                        status === "correct"
+                          ? "bg-green-400 border-green-600"
+                          : status === "wrong"
+                          ? "bg-red-400 border-red-600"
+                          : status === "passed"
+                          ? "bg-amber-300 border-amber-500"
+                          : "bg-white"
                       }
                     `}
               >
