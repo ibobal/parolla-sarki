@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/carousel";
 import { useEffect, useState } from "react";
 import { useGameStore } from "@/store/game";
+import { cn } from "@/lib/utils";
 
 export default function LetterCarousel() {
   const [api, setApi] = useState<CarouselApi>();
@@ -33,32 +34,22 @@ export default function LetterCarousel() {
           return (
             <CarouselItem className="p-6 basis-1/5 md:basis-1/7" key={letter}>
               <div
-                className={`
-                      w-20 h-20 rounded-full flex items-center justify-center
-                      transition-all duration-300 cursor-default border-2
-                      ${
-                        isActive
-                          ? "scale-110 shadow-[0_1.75px_0_1px_rgba(239,68,68,0.8)] border-black"
-                          : "border-gray-200"
-                      }
-                      ${
-                        status === "correct"
-                          ? "bg-green-400 border-green-600"
-                          : status === "wrong"
-                          ? "bg-red-400 border-red-600"
-                          : status === "passed"
-                          ? "bg-amber-300 border-amber-500"
-                          : "bg-white"
-                      }
-                    `}
+                className={cn(
+                  "w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 cursor-default border-3",
+                  isActive
+                    ? "scale-115 shadow-[0_2px_0_1px_rgba(239,68,68,0.8)] bg-white dark:bg-accent border-black dark:border-white text-black dark:text-white"
+                    : cn({
+                        "bg-success border-success text-white":
+                          status === "correct",
+                        "bg-error border-error text-white": status === "wrong",
+                        "bg-warning border-warning text-white":
+                          status === "passed",
+                        "bg-white dark:bg-accent border-gray-400 dark:border-gray-600":
+                          status === "pending",
+                      })
+                )}
               >
-                <span
-                  className={`
-                        ${isActive ? "font-bold" : "text-gray-600"}
-                      `}
-                >
-                  {letter}
-                </span>
+                <span className={cn({ "font-bold": isActive })}>{letter}</span>
               </div>
             </CarouselItem>
           );
