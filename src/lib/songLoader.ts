@@ -36,10 +36,6 @@ const songsByLetter: Map<string, Song[]> = (() => {
 const getRandomElement = <T>(array: T[]): T =>
   array[Math.floor(Math.random() * array.length)];
 
-/**
- * Her harf için (varsa) 1 tane rastgele şarkı döndürür.
- * Bazı harflerde şarkı yoksa o harf atlanır.
- */
 export const getSongsForGame = (): Song[] => {
   const songs: Song[] = [];
 
@@ -53,19 +49,12 @@ export const getSongsForGame = (): Song[] => {
   return songs;
 };
 
-/**
- * Verilen harf için rastgele bir şarkı döndürür.
- */
 export const getSongByLetter = (letter: string): Song | undefined => {
   const key = letter;
   const letterSongs = songsByLetter.get(key);
   return letterSongs?.length ? getRandomElement(letterSongs) : undefined;
 };
 
-/**
- * (Opsiyonel) Gerekirse debug/istatistik için:
- * Her harf kaç şarkı var bilgisini döndürür.
- */
 export const getSongCountsByLetter = (): Record<string, number> => {
   const counts: Record<string, number> = {};
   for (const letter of ALPHABET) {
