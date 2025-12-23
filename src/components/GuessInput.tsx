@@ -1,11 +1,12 @@
 import { Send } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useGameStore } from "@/store/game";
+import { Input } from "./ui/input";
 
 export default function GuessInput() {
   const [guess, setGuess] = useState("");
   const checkAnswer = useGameStore((state) => state.submitAnswer);
-  const passTurn = useGameStore((state) => state.passTurn)
+  const passTurn = useGameStore((state) => state.passTurn);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -31,10 +32,10 @@ export default function GuessInput() {
 
   return (
     <form className="relative flex items-center" onSubmit={handleSubmit}>
-      <input
+      <Input
         type="text"
         placeholder="Cevabı yaz"
-        className="w-full px-4 py-2 pr-20 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-red-400 transition"
+        className="w-full px-4 py-6 pr-20 rounded-lg focus:outline-none focus:ring-1 focus:ring-red-400 transition"
         value={guess}
         onChange={handleChange}
       />
