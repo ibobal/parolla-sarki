@@ -32,19 +32,19 @@ export default function LetterCarousel() {
         {Object.entries(results).map(([letter, status], index) => {
           const isActive = index === currentIndex;
           return (
-            <CarouselItem className="p-6 basis-1/5 md:basis-1/7" key={letter}>
+            <CarouselItem className="p-2 basis-1/5 md:basis-1/7" key={letter}>
               <div
                 className={cn(
                   "w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 cursor-default border-3",
                   isActive
-                    ? "scale-115 shadow-[0_2px_0_1px_rgba(239,68,68,0.8)] bg-white dark:bg-accent border-black dark:border-white text-black dark:text-white"
+                    ? "scale-110 shadow-[0_2px_0_1px_rgba(239,68,68,0.8)] bg-white dark:bg-accent border-black dark:border-white text-black dark:text-white"
                     : cn({
                         "bg-success border-success text-white":
                           status === "correct",
                         "bg-error border-error text-white": status === "wrong",
                         "bg-warning border-warning text-white":
                           status === "passed",
-                        "bg-white dark:bg-accent border-gray-400 dark:border-gray-600":
+                        "bg-transparent border-gray-400 dark:border-gray-600":
                           status === "pending",
                       })
                 )}
