@@ -1,21 +1,19 @@
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useGameStore } from "@/store/game";
 import { Button } from "./ui/button";
 import { Play, Pause } from "lucide-react";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 
 export default function SongCard() {
   const currentSong = useGameStore((state) => state.getCurrentSong());
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+
+  const artwork = useMemo(() => {
+    const url = currentSong?.artwork_url;
+    if (!url) return "";
+    return url.replace(/\/\d+x\d+bb\.jpg$/, "/300x300bb.jpg");
+  }, [currentSong]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -29,45 +27,54 @@ export default function SongCard() {
     const audio = audioRef.current;
     if (!audio) return;
 
-    if (isPlaying) {
-      audio.pause();
-    } else {
-      audio.play();
-    }
+    if (isPlaying) audio.pause();
+    else audio.play();
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{currentSong?.track_name}</CardTitle>
-        <CardDescription>
-          {currentSong?.artist_name}
-        </CardDescription>
-        <CardAction>{audioRef.current?.currentTime.toFixed(2)}</CardAction>
-      </CardHeader>
-      <CardContent className="flex justify-center items-center">
-        <img
-          src={currentSong?.artwork_url.replace(
-            /\/\d+x\d+bb\.jpg$/,
-            "/300x300bb.jpg"
+    <div className="flex flex-col justify-center items-center gap-4">
+      <Card className="overflow-hidden">
+        <CardContent className="relative flex justify-center items-center px-8 py-2">
+          {artwork && (
+            <div aria-hidden className="absolute inset-0 ">
+              <img
+                src={artwork}
+                alt=""
+                className={`
+                  w-full h-full object-cover
+                  blur-xl
+                  saturate-150 brightness-110
+                  scale-110
+                  ${isPlaying ? "animate-pulse" : ""}
+                `}
+              />
+            </div>
+            
           )}
-          alt="Album Art"
+
+          {artwork && (
+            <img
+              src={artwork}
+              alt="Album Art"
+              className="relative rounded-lg"
+            />
+          )}
+        </CardContent>
+
+        <audio
+          hidden
+          ref={audioRef}
+          src={currentSong?.preview_url}
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
+          onEnded={() => setIsPlaying(false)}
         />
-      </CardContent>
-      <CardFooter className="flex justify-center items-center">
-        <Button onClick={togglePlay}>
-          {audioRef.current?.paused ? <Play /> : <Pause />}
-          {audioRef.current?.paused ? "Oynat" : "Duraklat"}
-        </Button>
-      </CardFooter>
-      <audio
-        hidden
-        ref={audioRef}
-        src={currentSong?.preview_url}
-        onPlay={() => setIsPlaying(true)}
-        onPause={() => setIsPlaying(false)}
-        onEnded={() => setIsPlaying(false)}
-      />
-    </Card>
+      </Card>
+
+      <Button onClick={togglePlay}>
+        {isPlaying ? <Pause /> : <Play />}
+        {isPlaying ? "Duraklat" : "Oynat"}
+      </Button>
+    </div>
   );
 }
