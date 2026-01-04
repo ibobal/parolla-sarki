@@ -1,4 +1,4 @@
-import { Send } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useGameStore } from "@/store/game";
 import { Input } from "./ui/input";
@@ -26,23 +26,42 @@ export default function GuessInput() {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (guess === "pas") {
+      passTurn();
+      setGuess("");
+      return;
+    }
     checkAnswer(guess);
     setGuess("");
   };
 
   return (
-    <form className="relative flex items-center" onSubmit={handleSubmit}>
+    <form
+      className="relative flex items-center"
+      onSubmit={handleSubmit}
+      id="user-answer"
+    >
       <Input
         type="text"
         placeholder="Cevabı yaz"
-        className="w-full px-4 py-6 pr-20 rounded-lg focus:outline-none focus:ring-1 focus:ring-red-400 transition"
+        className="w-full px-4 py-6 pr-20 rounded-lg"
         value={guess}
         onChange={handleChange}
       />
-      <button className="absolute right-1 flex items-center gap-2 bg-red-400 hover:bg-red-500 px-3 py-2 rounded-md transition-colors text-white text-sm font-medium">
-        <Send className="w-4 h-4" />
-        <span>GÖNDER</span>
-      </button>
+      {guess.length === 0 ? (
+        <button
+          onClick={passTurn}
+          className="absolute right-1 flex items-center gap-1 bg-warning px-3 hover:bg-amber-400 py-2 rounded-sm text-md font-medium text-white"
+        >
+          <ChevronRight className="w-6 h-6" />
+          <span>PAS</span>
+        </button>
+      ) : (
+        <button className="absolute right-1 flex items-center gap-1 bg-error hover:bg-red-400 px-3 py-2 rounded-sm text-md font-medium text-white">
+          <ChevronRight className="w-6 h-6" />
+          <span>GÖNDER</span>
+        </button>
+      )}
     </form>
   );
 }
