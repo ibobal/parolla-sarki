@@ -1,6 +1,6 @@
 import { ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useGameStore } from "@/store/game";
+import { useGameStore } from "@/store/gameStore";
 import { Input } from "./ui/input";
 
 export default function GuessInput() {
