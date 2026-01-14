@@ -1,13 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { useGameStore } from "@/store/game";
-import { Button } from "./ui/button";
-import { Play, Pause } from "lucide-react";
-import { useRef, useState, useEffect, useMemo } from "react";
+import { useGameStore } from "@/store/gameStore";
+import { useAudioStore } from "@/store/audioStore";
+import { audioManager } from "@/lib/audioManager";
+import { useEffect, useMemo } from "react";
 
 export default function SongCard() {
   const currentSong = useGameStore((state) => state.getCurrentSong());
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const { isPlaying, setIsPlaying } = useAudioStore();
 
   const artwork = useMemo(() => {
     const url = currentSong?.artwork_url;
@@ -16,24 +15,26 @@ export default function SongCard() {
   }, [currentSong]);
 
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.pause();
+    if (!currentSong?.preview_url) {
+      audioManager.stopSong();
       setIsPlaying(false);
-      audioRef.current.load();
+      return;
     }
-  }, [currentSong]);
 
-  const togglePlay = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
+    audioManager.loadSong(currentSong.preview_url, () => {
+      setIsPlaying(false);
+    });
+    setIsPlaying(true);
+  }, [currentSong?.preview_url, setIsPlaying]);
 
-    if (isPlaying) audio.pause();
-    else audio.play();
+  const handlePlayPause = () => {
+    audioManager.togglePlay();
+    setIsPlaying(audioManager.isPlaying());
   };
 
   return (
     <div className="flex flex-col justify-center items-center gap-4">
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden" onClick={handlePlayPause}>
         <CardContent className="relative flex justify-center items-center px-8 py-2">
           {artwork && (
             <div aria-hidden className="absolute inset-0 ">
@@ -47,34 +48,23 @@ export default function SongCard() {
                   scale-110
                   ${isPlaying ? "animate-pulse" : ""}
                 `}
+                draggable={false}
               />
             </div>
-            
           )}
 
           {artwork && (
             <img
               src={artwork}
               alt="Album Art"
-              className="relative rounded-lg"
+              className={`relative rounded-lg transition-all ${
+                isPlaying ? "scale-105" : ""
+              }`}
+              draggable={false}
             />
           )}
         </CardContent>
-
-        <audio
-          hidden
-          ref={audioRef}
-          src={currentSong?.preview_url}
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
-          onEnded={() => setIsPlaying(false)}
-        />
       </Card>
-
-      <Button onClick={togglePlay}>
-        {isPlaying ? <Pause /> : <Play />}
-        {isPlaying ? "Duraklat" : "Oynat"}
-      </Button>
     </div>
   );
 }
