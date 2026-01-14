@@ -1,7 +1,7 @@
-import { Music, ArrowLeft, UserCircle, Globe } from "lucide-react";
+import { Music, ArrowLeft, Globe } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { Button } from "./ui/button";
-import { ModeToggle } from "./mode-toggle";
+import { SettingsDialog } from "./SettingsDialog";
 
 export default function Header() {
   const location = useLocation();
@@ -25,10 +25,7 @@ export default function Header() {
         <Music />
       </div>
       <div>
-        <ModeToggle />
-        <Button variant="ghost" className="cursor-pointer">
-          <UserCircle className="scale-150" />
-        </Button>
+        <SettingsDialog />
       </div>
     </header>
   );
