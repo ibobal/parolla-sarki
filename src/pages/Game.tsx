@@ -1,4 +1,4 @@
-import { useGameStore } from "@/store/game";
+import { useGameStore } from "@/store/gameStore";
 import { useEffect } from "react";
 import GuessInput from "@/components/GuessInput";
 import LetterCarousel from "@/components/LetterCarousel";
@@ -7,15 +7,22 @@ import { Spinner } from "@/components/ui/spinner";
 
 export default function Game() {
   const startGame = useGameStore((state) => state.startGame);
+  const resetGame = useGameStore((state) => state.resetGame);
   const isLoading = useGameStore((state) => state.isLoading);
 
   useEffect(() => {
     startGame();
   }, [startGame]);
 
+  useEffect(() => {
+    return () => {
+      resetGame();
+    };
+  }, [resetGame]);
+
   return isLoading ? (
     <div className="flex flex-1 items-center justify-center">
-      <Spinner className="size-8"/>
+      <Spinner className="size-8" />
     </div>
   ) : (
     <div className="flex flex-col flex-1 justify-between p-4">
