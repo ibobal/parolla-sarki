@@ -4,21 +4,15 @@ import GuessInput from "@/components/GuessInput";
 import LetterCarousel from "@/components/LetterCarousel";
 import SongCard from "@/components/SongCard";
 import { Spinner } from "@/components/ui/spinner";
+import Results from "@/components/ResultsDialog";
 
 export default function Game() {
   const startGame = useGameStore((state) => state.startGame);
-  const resetGame = useGameStore((state) => state.resetGame);
   const isLoading = useGameStore((state) => state.isLoading);
 
   useEffect(() => {
     startGame();
   }, [startGame]);
-
-  useEffect(() => {
-    return () => {
-      resetGame();
-    };
-  }, [resetGame]);
 
   return isLoading ? (
     <div className="flex flex-1 items-center justify-center">
@@ -29,6 +23,7 @@ export default function Game() {
       <LetterCarousel />
       <SongCard />
       <GuessInput />
+      <Results />
     </div>
   );
 }
