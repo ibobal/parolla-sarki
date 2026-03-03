@@ -2,6 +2,7 @@ import { Outlet } from "react-router";
 import "./App.css";
 import Header from "./components/Header";
 import { ThemeProvider } from "./components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           AD
         </section>
       </main>
+      <Toaster />
     </ThemeProvider>
   );
 }
