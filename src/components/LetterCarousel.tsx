@@ -29,8 +29,9 @@ export default function LetterCarousel() {
       setApi={setApi}
     >
       <CarouselContent>
-        {Object.entries(results).map(([letter, status], index) => {
+        {Object.entries(results).map(([letter, answer], index) => {
           const isActive = index === currentIndex;
+          const status = answer.status;
           return (
             <CarouselItem className="p-2 basis-1/5 md:basis-1/7" key={letter}>
               <div
