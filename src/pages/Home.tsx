@@ -1,18 +1,7 @@
 import { Link } from "react-router";
-import {
-  CalendarDays,
-  InfinityIcon,
-  Headphones,
-  ArrowRight,
-} from "lucide-react";
+import { CalendarDays, InfinityIcon, Headphones } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Home() {
   return (
@@ -28,14 +17,7 @@ export default function Home() {
                 <CalendarDays className="w-5 h-5" />
                 Günlük
               </CardTitle>
-              <CardDescription>Günlük</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between text-sm font-medium transition-colors">
-                Oyna
-                <ArrowRight className="transform group-hover:translate-x-1 transition-transform" />
-              </div>
-            </CardContent>
           </Card>
         </Link>
 
@@ -49,14 +31,7 @@ export default function Home() {
                 <InfinityIcon className="w-5 h-5" />
                 Limitsiz
               </CardTitle>
-              <CardDescription>Limitsiz</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between text-sm font-medium transition-colors">
-                Oyna
-                <ArrowRight className="transform group-hover:translate-x-1 transition-transform" />
-              </div>
-            </CardContent>
           </Card>
         </Link>
       </div>
