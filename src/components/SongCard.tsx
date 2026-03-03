@@ -3,6 +3,7 @@ import { useGameStore } from "@/store/gameStore";
 import { useAudioStore } from "@/store/audioStore";
 import { audioManager } from "@/lib/audioManager";
 import { useEffect, useMemo } from "react";
+import { Play, Pause } from "lucide-react";
 
 export default function SongCard() {
   const currentSong = useGameStore((state) => state.getCurrentSong());
@@ -34,8 +35,8 @@ export default function SongCard() {
 
   return (
     <div className="flex flex-col justify-center items-center gap-4">
-      <Card className="overflow-hidden" onClick={handlePlayPause}>
-        <CardContent className="relative flex justify-center items-center px-8 py-2">
+      <Card className="overflow-hidden select-none" onClick={handlePlayPause}>
+        <CardContent className="relative flex justify-center items-center px-8 py-2 group">
           {artwork && (
             <div aria-hidden className="absolute inset-0 ">
               <img
@@ -54,14 +55,23 @@ export default function SongCard() {
           )}
 
           {artwork && (
-            <img
-              src={artwork}
-              alt="Album Art"
-              className={`relative rounded-lg transition-all ${
-                isPlaying ? "scale-105" : ""
-              }`}
-              draggable={false}
-            />
+            <div>
+              <div className="absolute z-10 cursor-pointer top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-all ease-in-out">
+                {isPlaying ? (
+                  <Pause className="opacity-0 group-hover:opacity-100 w-20 h-20 p-4 text-primary drop-shadow-lg backdrop-blur-none hover:border hover:bg-accent/80 hover:bg-opacity-20 transition-all rounded-full" />
+                ) : (
+                  <Play className="opacity-80 group-hover:opacity-100 w-20 h-20 p-4 text-primary drop-shadow-lg backdrop-blur-none hover:border hover:bg-accent/80 transition-all rounded-full" />
+                )}
+              </div>
+              <img
+                src={artwork}
+                alt="Album Art"
+                className={`relative rounded-lg transition-all border drop-shadow-lg ${
+                  isPlaying ? "scale-105" : ""
+                }`}
+                draggable={false}
+              />
+            </div>
           )}
         </CardContent>
       </Card>
