@@ -1,8 +1,17 @@
 import { create } from "zustand";
 import { getSongsForGame, type Song } from "@/lib/songLoader";
 import { audioManager } from "@/lib/audioManager";
+import { normalizeText } from "@/lib/utils";
+import { checkAnswer } from "@/lib/answerChecker";
 
 type LetterStatus = "pending" | "correct" | "wrong" | "passed";
+
+type Answers = {
+  status: LetterStatus;
+  correctAnswer: string;
+  userAnswer: string | null;
+  artistName: string;
+};
 
 type GameStatus = "not_started" | "playing" | "finished";
 
@@ -11,13 +20,13 @@ interface GameState {
   gameStatus: GameStatus;
   isLoading: boolean;
   queue: number[];
-  results: Record<string, LetterStatus>;
-  score: number;
+  results: Record<string, Answers>;
 
   startGame: () => void;
   getCurrentSong: () => Song | null;
   submitAnswer: (answer: string) => void;
   passTurn: () => void;
+  finishGame: () => void;
   resetGame: () => void;
 }
 
@@ -27,7 +36,6 @@ export const useGameStore = create<GameState>((set, get) => ({
   isLoading: false,
   queue: [],
   results: {},
-  score: 0,
 
   startGame: async () => {
     set({ isLoading: true });
@@ -37,8 +45,15 @@ export const useGameStore = create<GameState>((set, get) => ({
       const songs = getSongsForGame();
       const initialQueue = songs.map((_, i) => i);
 
-      const initialResults: Record<string, LetterStatus> = {};
-      songs.forEach((s) => (initialResults[s.letter] = "pending"));
+      const initialResults: Record<string, Answers> = {};
+      songs.forEach((s) => {
+        initialResults[s.letter] = {
+          status: "pending",
+          correctAnswer: s.track_name,
+          userAnswer: null,
+          artistName: s.artist_name,
+        };
+      });
 
       set({
         songs,
@@ -46,7 +61,6 @@ export const useGameStore = create<GameState>((set, get) => ({
         queue: initialQueue,
         results: initialResults,
         gameStatus: "playing",
-        score: 0,
       });
     } catch (e) {
       console.error("Şarkılar yüklenirken hata oluştu:", e);
@@ -61,53 +75,71 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   submitAnswer: (answer: string) => {
-    const { queue, songs, results, score } = get();
-
+    const { queue, songs } = get();
     if (queue.length === 0) return;
 
     const currentIndex = queue[0];
     const currentSong = songs[currentIndex];
 
-    if (!answer.startsWith(currentSong.letter)) return;
+    const normalizedAnswer = normalizeText(answer);
+    const normalizedCorrect = normalizeText(currentSong.track_name);
 
-    const isCorrect = answer === currentSong.track_name;
+    const songLetterNormalized = normalizeText(currentSong.letter);
+    if (!normalizedAnswer.startsWith(songLetterNormalized)) return;
 
-    const newStatus: LetterStatus = isCorrect ? "correct" : "wrong";
-    const newScore = isCorrect ? score + 1 : score;
+    const answerCheck = checkAnswer(normalizedAnswer, normalizedCorrect, 75);
+    const isCorrect = answerCheck.isCorrect || answerCheck.isSimilar;
 
-    const newQueue = queue.slice(1);
+    audioManager.playSfx(isCorrect ? "correct" : "wrong");
 
-    audioManager.playSfx(newStatus);
+    set((state) => {
+      const newQueue = state.queue.slice(1);
+      const nextStatus: LetterStatus = isCorrect ? "correct" : "wrong";
 
-    set({
-      score: newScore,
-      queue: newQueue,
-      results: {
-        ...results,
-        [currentSong.letter]: newStatus,
-      },
-      gameStatus: newQueue.length === 0 ? "finished" : "playing",
+      return {
+        queue: newQueue,
+        results: {
+          ...state.results,
+          [currentSong.letter]: {
+            ...state.results[currentSong.letter],
+            status: nextStatus,
+            userAnswer: answer,
+          },
+        },
+        gameStatus: newQueue.length === 0 ? "finished" : "playing",
+      };
     });
   },
 
   passTurn: () => {
-    const { queue, songs, results } = get();
+    const { queue, songs } = get();
     if (queue.length === 0) return;
 
     const currentIndex = queue[0];
     const currentSong = songs[currentIndex];
 
-    const newQueue = [...queue.slice(1), currentIndex];
-
     audioManager.playSfx("pass");
 
-    set({
-      queue: newQueue,
-      results: {
-        ...results,
-        [currentSong.letter]: "passed",
-      },
+    set((state) => {
+      const newQueue = [...state.queue.slice(1), currentIndex];
+
+      return {
+        queue: newQueue,
+        results: {
+          ...state.results,
+          [currentSong.letter]: {
+            ...state.results[currentSong.letter],
+            status: "passed",
+            userAnswer: null,
+          },
+        },
+      };
     });
+  },
+
+  finishGame: () => {
+    audioManager.stopSong();
+    set({ gameStatus: "finished" });
   },
 
   resetGame: () => {
@@ -118,7 +150,6 @@ export const useGameStore = create<GameState>((set, get) => ({
       isLoading: false,
       queue: [],
       results: {},
-      score: 0,
     });
   },
 }));
